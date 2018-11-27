@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Canvas Layout</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+    <meta
+      name="viewport"
+      content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width"
+    />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <div id="header">
+      <button id="text" title="Text Tools"></button>
+      <button id="images" title="Image Tools"></button>
+      <button id="shapes" title="Shape Tools"></button>
+      <button id="sort" title="Arrange and Sort"></button>
+      <button
+        id="bgcolor"
+        title="Background Color"
+        class="jscolor {closable:true,closeText:'Remove Background Color',valueElement:'backgroundChanger', styleElement:'backgroundInput'}"
+      ></button>
+      <input
+        type="hidden"
+        id="backgroundChanger"
+        id="valueInput"
+        value="ff6699"
+      />
+      <input type="hidden" id="backgroundInput" />
+      <button id="jsonWriter" title="Save and Continue" class="right"></button>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="content">
+      <center>
+        <table cellspacing="0" cellpadding="0" id="canvas_editor_table">
+          <tr>
+            <td id="canvas_bg">
+              <canvas id="imageCanvas" width="1200" height="1800"></canvas>
+            </td>
+          </tr>
+        </table>
+      </center>
+    </div>
+
+    <!-- FOOTER -->
+    <div id="footer">
+      <button id="zoom_in" title="Zoom In"></button>
+      <button id="zoom_out" title="Zoom Out"></button>
+      <button id="deleteAll" title="Clear All" class="right"></button>
+      <button
+        id="deleteSelected"
+        title="Delete Selected"
+        class="right"
+      ></button>
+    </div>
+
+    <div id="text_tools" class="shadow_box">
+      <div class="box_header" onClick="this.parentNode.style.display='none';">
+        <div class="box_heading">Text Tools</div>
+        <div class="close"></div>
+      </div>
+      <hr />
+      <button id="textInserter">Insert Text</button><br />
+      <button id="bold">Bold</button> <button id="italic">Italic</button>
+      <button id="underline">Underline</button>
+      <button id="shadow">Shadow</button><br />
+
+      <button id="text_left">Left</button>
+      <button id="text_center">Center</button>
+      <button id="text_right">Right</button>
+      <button id="text_justify">Justify</button><br />
+
+      <button
+        class="jscolor {valueElement:'colorChanger', styleElement:'styleInput'}"
+      >
+        Color
+      </button>
+      <input type="hidden" id="colorChanger" id="valueInput" value="ff6699" />
+      <input type="hidden" id="styleInput" /> <br /><br />
+      <div class="box_heading">Font</div>
+      <hr />
+      <select id="fontChanger">
+        <option value="Arial" style="font-family:Arial">Arial</option>
+        <option value="Times New Roman" style="font-family:Times New Roman"
+          >Times New Roman</option
+        >
+        <option value="Courier New" style="font-family:Courier New"
+          >Courier New</option
+        >
+        <option value="Impact" style="font-family:Impact">Impact</option>
+      </select>
+    </div>
+
+    <div id="image_tools" class="shadow_box">
+      <div class="box_header" onClick="this.parentNode.style.display='none';">
+        <div class="box_heading">Insert Image</div>
+        <div class="close"></div>
+      </div>
+      <hr />
+      <div id="drop" class="dropzone">
+        Drag + drop image file here<br /><br /><img
+          src="src/images/upload.png"
+        /><br /><br />Rasters: JPG, PNG, BMP, or GIF <br /><br />
+        Vectors: SVG<br /><br />(Max file size: 5MB)
+      </div>
+      <br />
+      <div class="box_heading">or... Browse for a file</div>
+      <hr />
+      <br />
+      <input type="file" id="imageLoader" name="imageLoader" value="" />
+      <br /><br />
+      <div class="box_heading">or... Enter image URL</div>
+      <hr />
+      <br />
+      <input type="text" id="imageLoaderURL" name="imageLoaderURL" value="" />
+      <input type="submit" id="imageLoaderSubmit" value="Send" />
+    </div>
+
+    <div id="shape_tools" class="shadow_box">
+      <div class="box_header" onClick="this.parentNode.style.display='none';">
+        <div class="box_heading">Insert Shape</div>
+        <div class="close"></div>
+      </div>
+      <hr />
+      <button id="line">Line</button> <button id="circle">Circle</button>
+      <button id="rectangle">Rectangle</button> <button id="star">Star</button>
+      <button id="polygon">Polygon</button> <br /><br />
+      <div class="box_heading">Fill</div>
+      <hr />
+      <br />
+      <button
+        class="jscolor {valueElement:'fillColorChanger', styleElement:'styleInput'}"
+      >
+        Color
+      </button>
+      <input
+        type="hidden"
+        id="fillColorChanger"
+        id="valueInput"
+        value="ff6699"
+      />
+      <input type="hidden" id="styleInput" />
+      <button id="removeFill">Remove Fill</button> <br /><br />
+      <div class="box_heading">Stroke</div>
+      <hr />
+      <br />
+      Width:
+      <input
+        value="0"
+        min="0"
+        max="20"
+        step="1"
+        type="range"
+        id="strokeChanger"
+      /><br />
+      <button
+        class="jscolor {valueElement:'strokeColorChanger', styleElement:'styleInput'}"
+      >
+        Color
+      </button>
+      <input
+        type="hidden"
+        id="strokeColorChanger"
+        id="valueInput"
+        value="ff6699"
+      />
+      <input type="hidden" id="styleInput" />
+    </div>
+
+    <div id="sort_tools" class="shadow_box">
+      <div class="box_header" onClick="this.parentNode.style.display='none';">
+        <div class="box_heading">Arrange and Sort</div>
+        <div class="close"></div>
+      </div>
+      <hr />
+      <button id="bringToFront">Bring to Front</button>
+      <button id="bringForward">Bring Forward</button>
+      <button id="sendBackwards">Send Backwards</button>
+      <button id="sendToBack">Send to Back</button><br />
+      <button id="straighten">Straighten</button>
+      <!-- <button id="groupSelected">Group</button> -->
+      <!-- <button id="unGroupSelected">Ungroup</button> -->
+      <button id="centerH">Center</button><br />
+      <br />Opacity: <input value="100" type="range" id="opacityChanger" />
+    </div>
+    <script src="dist/bundle.js"></script>
+  </body>
+</html>
