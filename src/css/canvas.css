@@ -99,10 +99,10 @@ button:focus {
 #zoom_out:hover {
   background-color: #000000;
 }
-#jsonWriter {
+#pngExport {
   background: url(../images/buttons/save.svg);
 }
-#jsonWriter:hover {
+#pngExport:hover {
   background-color: #000000;
 }
 #images {
@@ -112,7 +112,7 @@ button:focus {
   background-color: #000000;
 }
 #text {
-  background: url(../images/buttons/text2.svg);
+  background: url(../images/buttons/test.svg);
 }
 #text:hover {
   background-color: #000000;

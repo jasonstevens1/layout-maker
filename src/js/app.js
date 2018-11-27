@@ -1,8 +1,6 @@
-//require("./jscolor.js");
-
 var fabric = require("fabric").fabric;
-
 require("!style-loader!css-loader!../css/canvas.css");
+require("./jscolor.js");
 
 var canvasFullW = 1200;
 var canvasFullH = 1800;
@@ -90,11 +88,11 @@ window.onload = function() {
   deleteSelected.addEventListener("click", clearSelected, false);
 
   function clearSelected() {
-    if (canvas.getActiveGroup()) {
-      canvas.getActiveGroup().forEachObject(function(o) {
+    if (canvas.getActiveObjects()) {
+      canvas.getActiveObjects().map(o => {
         canvas.remove(o);
       });
-      canvas.discardActiveGroup().renderAll();
+      canvas.discardActiveObject().renderAll();
     } else {
       canvas.remove(canvas.getActiveObject());
     }
@@ -112,7 +110,7 @@ window.onload = function() {
 
   function zoomIn() {
     if (zoomCount < zoomSteps) {
-      //canvas.deactivateAll();
+      canvas.discardActiveObject();
       var zoomFactor = zoomInStepArr[zoomCount];
       zoomCount += 1;
       canvas.setHeight(canvas.getHeight() * zoomFactor);
@@ -152,7 +150,7 @@ window.onload = function() {
 
   function zoomOut() {
     if (zoomCount > 0) {
-      //canvas.deactivateAll();
+      canvas.discardActiveObject();
       zoomCount -= 1;
       var zoomFactor = zoomOutStepArr[zoomCount];
       canvas.setHeight(canvas.getHeight() * zoomFactor);
@@ -257,8 +255,8 @@ window.onload = function() {
     canvas.renderAll();
   }
 
-  var jsonWriter = document.getElementById("jsonWriter");
-  jsonWriter.addEventListener("click", designExporter, false);
+  var pngExport = document.getElementById("pngExport");
+  pngExport.addEventListener("click", savePNG, false);
 
   function designExporter() {
     if (overlayImg != "none") {
@@ -268,74 +266,30 @@ window.onload = function() {
     } else savePNG();
   }
 
-  function saveJSON(fname) {
-    for (i = zoomCount; i <= zoomSteps; i++) {
-      zoomIn();
+  function dataURLtoBlob(dataurl) {
+    var arr = dataurl.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
     }
-
-    var cw = canvas.getWidth();
-    var ch = canvas.getHeight();
-    var f_name = fname;
-
-    var json_str = JSON.stringify({
-      design: canvas,
-      w: cw,
-      h: ch,
-      fn: f_name,
-      d: design_id,
-      o: overlayImg
-    }); //JSON.stringify(canvas.toDatalessJSON()); //JSON.stringify({design:canvas,w:cw,h:ch});
-
-    var url = "save_json.php";
-    var method = "POST";
-    var postData = json_str;
-    var async = true;
-
-    var request = new XMLHttpRequest();
-    request.onload = function() {
-      var status = request.status; // HTTP response status, e.g., 200 for "200 OK"
-      var data = request.responseText; // Returned data, e.g., an HTML document.
-      console.log(data);
-
-      window.location = "order_review.php?d=" + data;
-    };
-
-    request.open(method, url, async);
-
-    //request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
-
-    request.send(postData);
+    return new Blob([u8arr], { type: mime });
   }
 
   function savePNG() {
-    canvas.deactivateAll().renderAll();
+    var link = document.createElement("a");
+    var imgData = canvas.toDataURL({ format: "png", multiplier: 4 });
+    var strDataURI = imgData.substr(22, imgData.length);
+    var blob = dataURLtoBlob(imgData);
+    var objurl = URL.createObjectURL(blob);
 
-    for (i = zoomCount; i > 0; i--) {
-      zoomOut();
-    }
+    link.download = "helloWorld.png";
 
-    var img = canvas.toDataURL("image/png");
+    link.href = objurl;
 
-    var url = "save_png.php";
-    var method = "POST";
-    var postData = img;
-
-    var async = true;
-
-    var request = new XMLHttpRequest();
-    request.onload = function() {
-      var returned_val = request.responseText; // Returned data, e.g., an HTML document.
-      if (typeof returned_val === "string" || returned_val instanceof String) {
-        canvas.overlayImage = null;
-        //canvas.renderAll.bind(canvas);
-        saveJSON(returned_val);
-      }
-    };
-
-    request.open(method, url, async);
-    request.setRequestHeader("Content-Type", "image/png");
-    request.send(postData);
+    link.click();
   }
 
   function setOverlay(path) {
@@ -371,10 +325,6 @@ window.onload = function() {
         originY: "top"
       });
       canvas.setOverlayImage(img, saveJSON(fileName));
-
-      //setTimeout(function(){
-      //saveJSON(fileName);
-      //}, 2000);
     });
   }
 
@@ -384,10 +334,10 @@ window.onload = function() {
     var movementDelta = 2;
 
     var activeObject = canvas.getActiveObject();
-    var activeGroup = canvas.getActiveGroup();
+    var activeGroup = canvas.getActiveObjects();
 
     if (evt.keyCode === 37) {
-      evt.preventDefault(); // Prevent the default action
+      evt.preventDefault();
       if (activeObject) {
         var a = activeObject.get("left") - movementDelta;
         activeObject.set("left", a);
@@ -396,7 +346,7 @@ window.onload = function() {
         activeGroup.set("left", a);
       }
     } else if (evt.keyCode === 39) {
-      evt.preventDefault(); // Prevent the default action
+      evt.preventDefault();
       if (activeObject) {
         var a = activeObject.get("left") + movementDelta;
         activeObject.set("left", a);
@@ -405,7 +355,7 @@ window.onload = function() {
         activeGroup.set("left", a);
       }
     } else if (evt.keyCode === 38) {
-      evt.preventDefault(); // Prevent the default action
+      evt.preventDefault();
       if (activeObject) {
         var a = activeObject.get("top") - movementDelta;
         activeObject.set("top", a);
@@ -414,7 +364,7 @@ window.onload = function() {
         activeGroup.set("top", a);
       }
     } else if (evt.keyCode === 40) {
-      evt.preventDefault(); // Prevent the default action
+      evt.preventDefault();
       if (activeObject) {
         var a = activeObject.get("top") + movementDelta;
         activeObject.set("top", a);
@@ -423,12 +373,12 @@ window.onload = function() {
         activeGroup.set("top", a);
       }
     } else if (evt.keyCode === 46) {
-      evt.preventDefault(); // Prevent the default action
-      if (canvas.getActiveGroup()) {
-        canvas.getActiveGroup().forEachObject(function(o) {
+      evt.preventDefault();
+      if (canvas.getActiveObjects()) {
+        canvas.getActiveObjects().map(o => {
           canvas.remove(o);
         });
-        canvas.discardActiveGroup().renderAll();
+        canvas.discardActiveObject().renderAll();
       } else {
         curr_obj = canvas.getActiveObject();
         if (!curr_obj.isEditing) {
@@ -558,9 +508,7 @@ window.onload = function() {
   });
 
   addClickHandler("centerH", function(obj) {
-    //obj.originX;
     canvas.centerObject(obj);
-    //canvas.fxCenterObjectV(obj);
     obj.setCoords();
   });
 
@@ -661,34 +609,6 @@ window.onload = function() {
     return false;
   };
 
-  var imageURL = document.getElementById("imageLoaderSubmit");
-  imageURL.addEventListener("click", handleImageURL, false);
-
-  function handleImageURL() {
-    var img_url = document.getElementById("imageLoaderURL").value;
-
-    var url = "save_remote_image.php";
-    var method = "POST";
-    var postArr = { d: 951, u: img_url };
-    var postData = JSON.stringify(postArr);
-    var async = true;
-    var request = new XMLHttpRequest();
-    request.onload = function() {
-      var data = request.responseText; // Returned data, e.g., an HTML document.
-      if (data == "FAIL") {
-        console.log("fail");
-      } else {
-        //console.log(data);
-        fabric.Image.fromURL(data, function(oImg) {
-          canvas.add(oImg);
-        });
-      }
-    };
-    request.open(method, url, async);
-    request.setRequestHeader("Content-Type", "text/plain");
-    request.send(postData);
-  }
-
   function toggleShapeTools() {
     hideAllControls();
     showControls("shape_tools");
@@ -706,7 +626,7 @@ window.onload = function() {
     var objOpacity = 1; //e.target.getOpacity();
     document.getElementById("opacityChanger").value = objOpacity * 100;
 
-    var objStroke = e.target.getStrokeWidth();
+    var objStroke = 1; //e.target.getStrokeWidth();
     var newStroke = objStroke >= 0 ? objStroke : 1;
     document.getElementById("strokeChanger").value = newStroke;
   }
@@ -924,7 +844,7 @@ group_selected.addEventListener('click', groupSelected, false);
 
 function groupSelected() {
 
-    var activegroup = canvas.getActiveGroup();
+    var activegroup = canvas.getActiveObjects();
     var objectsInGroup = activegroup.getObjects();
 
     activegroup.clone(function(newgroup) {
