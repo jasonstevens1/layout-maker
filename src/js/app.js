@@ -27,13 +27,9 @@ var overlayMaskPath = "assets/shapes/" + overlayImg + "_mask.png";
 var saved_json_str = "";
 
 window.onload = function() {
-  var design_id = 951;
-  var hash_str = "53e78a69c3f5fd58ec998bd0ad06b7a4";
-
-  var canvas = new fabric.Canvas("imageCanvas", {});
-
-  var width_in_mm = Math.round((canvas.getWidth() * 25.4) / 300);
-  var height_in_mm = Math.round((canvas.getHeight() * 25.4) / 300);
+  var canvas = new fabric.Canvas("imageCanvas", {
+    preserveObjectStacking: true
+  });
 
   fabric.Object.NUM_FRACTION_DIGITS = 17;
 
@@ -140,7 +136,7 @@ window.onload = function() {
 
         objects[i].setCoords();
       }
-
+      updateImageInfo(zoomFactor);
       canvas.renderAll();
     }
   }
@@ -180,6 +176,7 @@ window.onload = function() {
 
         objects[i].setCoords();
       }
+      updateImageInfo(zoomFactor);
       canvas.renderAll();
     }
   }
@@ -258,14 +255,6 @@ window.onload = function() {
   var pngExport = document.getElementById("pngExport");
   pngExport.addEventListener("click", savePNG, false);
 
-  function designExporter() {
-    if (overlayImg != "none") {
-      canvas.overlayImage = null;
-      canvas.renderAll.bind(canvas);
-      setOverlayMask(overlayMaskPath);
-    } else savePNG();
-  }
-
   function dataURLtoBlob(dataurl) {
     var arr = dataurl.split(","),
       mime = arr[0].match(/:(.*?);/)[1],
@@ -279,13 +268,14 @@ window.onload = function() {
   }
 
   function savePNG() {
+    setZoom();
     var link = document.createElement("a");
     var imgData = canvas.toDataURL({ format: "png", multiplier: 4 });
     var strDataURI = imgData.substr(22, imgData.length);
     var blob = dataURLtoBlob(imgData);
     var objurl = URL.createObjectURL(blob);
 
-    link.download = "helloWorld.png";
+    link.download = "layout-maker.png";
 
     link.href = objurl;
 
@@ -458,6 +448,10 @@ window.onload = function() {
     obj.set({ fill: "transparent" });
   });
 
+  addClickHandler("removeStroke", function(obj) {
+    obj.set({ stroke: "transparent" });
+  });
+
   addChangeHandler("colorChanger", function(obj) {
     var newColor = "#" + document.getElementById("colorChanger").value;
     obj.set({ fill: newColor });
@@ -593,7 +587,7 @@ window.onload = function() {
     }
   }
 
-  var holder = document.getElementById("drop");
+  var holder = document.getElementById("canvas_editor_table");
   holder.ondragover = function() {
     this.className += " dropzone_hover";
     return false;
@@ -604,7 +598,7 @@ window.onload = function() {
     var file = e.dataTransfer.files[0];
     handleDroppedImage(file);
 
-    this.className = "dropzone";
+    this.className = null;
 
     return false;
   };
@@ -836,6 +830,24 @@ window.onload = function() {
       angle += sweep;
     }
     return points;
+  }
+
+  function updateImageInfo(zoomFactor) {
+    var width_in_mm = Math.round((canvasFullW * 25.4) / 300);
+    var height_in_mm = Math.round((canvasFullH * 25.4) / 300);
+    var width_in_inches = (width_in_mm / 25.4).toPrecision(3);
+    var height_in_inches = (height_in_mm / 25.4).toPrecision(3);
+
+    document.getElementById("millimetres").innerHTML =
+      width_in_mm + "mm x " + height_in_mm + "mm";
+
+    document.getElementById("inches").innerHTML =
+      "(" + width_in_inches + "&#34; x " + height_in_inches + "&#34;)";
+
+    document.getElementById("pixels").innerHTML =
+      canvasFullW + " x " + canvasFullH + " px";
+
+    return;
   }
 
   /* GROUPS ARE BROKEN IN FABRIC.JS AS OF FEB 2016 - CANNOT SCALE A GROUP

@@ -35,10 +35,25 @@
     <!-- CONTENT -->
     <div id="content">
       <center>
-        <table cellspacing="0" cellpadding="0" id="canvas_editor_table">
+        <table
+          cellspacing="0"
+          cellpadding="0"
+          id="canvas_editor_table"
+          style="margin-top:20px;margin-bottom:20px;"
+        >
           <tr>
             <td id="canvas_bg">
               <canvas id="imageCanvas" width="1200" height="1800"></canvas>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span style="float:left;font-size:smaller"
+                >Print Size: <br /><span id="millimetres">mm</span> <br />
+                <span id="inches">in</span> <br />@ 300dpi</span
+              ><span style="float:right;font-size:smaller; text-align:right"
+                >Image Size:<br /><span id="pixels">w x h px</span>
+              </span>
             </td>
           </tr>
         </table>
@@ -162,6 +177,7 @@
         value="ff6699"
       />
       <input type="hidden" id="styleInput" />
+      <button id="removeStroke">Remove Stroke</button>
     </div>
 
     <div id="sort_tools" class="shadow_box">
